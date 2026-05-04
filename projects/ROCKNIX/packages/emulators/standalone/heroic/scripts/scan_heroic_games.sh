@@ -1,22 +1,28 @@
 #!/bin/bash
-
 # SPDX-License-Identifier: GPL-2.0-or-later
 # Copyright (C) 2026-present ROCKNIX (https://github.com/ROCKNIX)
 
 source /etc/profile
 
-_heroic_common_loaded=0
-for _hcf in /usr/share/heroic/heroic_common.sh /storage/.config/heroic-launchers/heroic_common.sh; do
-  [ -r "${_hcf}" ] || continue
-  # shellcheck source=/dev/null
-  . "${_hcf}"
-  _heroic_common_loaded=1
-  break
-done
-if [ "${_heroic_common_loaded}" != "1" ]; then
-  echo "Heroic: heroic_common.sh not found (/usr/share/heroic or /storage/.config/heroic-launchers)." >&2
-  exit 1
-fi
+heroic_source_common() {
+  local mod
+  mod="$(cd "$(dirname "$0")" && pwd)"
+  if [ -r "${mod}/scripts/heroic_common.inc" ]; then
+    # shellcheck source=/dev/null
+    . "${mod}/scripts/heroic_common.inc"
+    return 0
+  fi
+  if [ -r /usr/share/heroic/heroic_common.sh ]; then
+    # shellcheck source=/dev/null
+    . /usr/share/heroic/heroic_common.sh
+    return 0
+  fi
+  echo "Heroic support files missing (heroic_common). Reflash or update ROCKNIX."
+  sleep 10
+  return 1
+}
+
+heroic_source_common || exit 1
 heroic_ensure_installed || exit 1
 
 ROMS_DIR="/storage/roms/heroic"
@@ -79,6 +85,29 @@ EOF
   chmod 0755 "${launcher_path}"
 }
 
+create_gog_launcher() {
+  local title="$1"
+  local game_id="$2"
+  local launcher_name
+  local launcher_path
+
+  launcher_name="$(sanitize_filename "${title}")"
+  launcher_path="${ROMS_DIR}/${launcher_name}.sh"
+
+  cat >"${launcher_path}" <<EOF
+#!/bin/bash
+HEROIC_LAUNCHER_NAME=start_heroic_gog.sh
+for HEROIC_LAUNCHER_DIR in /usr/bin /storage/.config/heroic-launchers; do
+  H="\${HEROIC_LAUNCHER_DIR}/\${HEROIC_LAUNCHER_NAME}"
+  [ -x "\$H" ] || continue
+  exec "\$H" $(printf '%q' "${game_id}")
+done
+echo "Heroic: start_heroic_gog.sh not found." >&2
+exit 127
+EOF
+  chmod 0755 "${launcher_path}"
+}
+
 if [ -f "${LEGENDARY_INSTALLED}" ]; then
   jq -r '
     to_entries[] |
@@ -87,7 +116,7 @@ if [ -f "${LEGENDARY_INSTALLED}" ]; then
     @tsv
   ' "${LEGENDARY_INSTALLED}" | while IFS=$'\t' read -r title uri; do
     [ -n "${title}" ] || continue
-    create_launcher "${title}" "${uri}"
+    create_gog_launcher "${title}" "${uri}"
   done
 fi
 
@@ -115,12 +144,12 @@ if [ -f "${GOG_INSTALLED}" ]; then
         else ($id | tostring)
         end
       ),
-      ("heroic://launch/gog/" + ($id|tostring))
+      ($id|tostring)
     ] |
     @tsv
-  ' "${GOG_INSTALLED}" | while IFS=$'\t' read -r title uri; do
+  ' "${GOG_INSTALLED}" | while IFS=$'\t' read -r title game_id; do
     [ -n "${title}" ] || continue
-    create_launcher "${title}" "${uri}"
+    create_launcher "${title}" "${game_id}"
   done
 fi
 
