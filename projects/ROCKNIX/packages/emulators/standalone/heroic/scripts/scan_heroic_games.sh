@@ -79,6 +79,29 @@ EOF
   chmod 0755 "${launcher_path}"
 }
 
+create_gog_launcher() {
+  local title="$1"
+  local game_id="$2"
+  local launcher_name
+  local launcher_path
+
+  launcher_name="$(sanitize_filename "${title}")"
+  launcher_path="${ROMS_DIR}/${launcher_name}.sh"
+
+  cat >"${launcher_path}" <<EOF
+#!/bin/bash
+HEROIC_LAUNCHER_NAME=start_heroic_gog.sh
+for HEROIC_LAUNCHER_DIR in /usr/bin /storage/.config/heroic-launchers; do
+  H="\${HEROIC_LAUNCHER_DIR}/\${HEROIC_LAUNCHER_NAME}"
+  [ -x "\$H" ] || continue
+  exec "\$H" $(printf '%q' "${game_id}")
+done
+echo "Heroic: start_heroic_gog.sh not found." >&2
+exit 127
+EOF
+  chmod 0755 "${launcher_path}"
+}
+
 if [ -f "${LEGENDARY_INSTALLED}" ]; then
   jq -r '
     to_entries[] |
@@ -87,7 +110,7 @@ if [ -f "${LEGENDARY_INSTALLED}" ]; then
     @tsv
   ' "${LEGENDARY_INSTALLED}" | while IFS=$'\t' read -r title uri; do
     [ -n "${title}" ] || continue
-    create_launcher "${title}" "${uri}"
+    create_gog_launcher "${title}" "${uri}"
   done
 fi
 
@@ -115,12 +138,12 @@ if [ -f "${GOG_INSTALLED}" ]; then
         else ($id | tostring)
         end
       ),
-      ("heroic://launch/gog/" + ($id|tostring))
+      ($id|tostring)
     ] |
     @tsv
-  ' "${GOG_INSTALLED}" | while IFS=$'\t' read -r title uri; do
+  ' "${GOG_INSTALLED}" | while IFS=$'\t' read -r title game_id; do
     [ -n "${title}" ] || continue
-    create_launcher "${title}" "${uri}"
+    create_launcher "${title}" "${game_id}"
   done
 fi
 
