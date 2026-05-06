@@ -14,27 +14,13 @@ makeinstall_target() {
   cd ${PKG_BUILD}
   ./configure --prefix=/usr \
               --sysconfdir=/etc \
-              --exec-prefix=/usr \
-              --enable-lib-static
+              --exec-prefix=/usr
 
   make
   make DESTDIR=${SYSROOT_PREFIX} install  # Install directly to the sysroot
+  make DESTDIR=${INSTALL} install  # Install directly to the sysroot
 
   # Create the unversioned symlink in the sysroot
   mkdir -p ${SYSROOT_PREFIX}/usr/lib
   ln -sf librhash.so.1 ${SYSROOT_PREFIX}/usr/lib/librhash.so
-
-  # Manually create and install librhash.pc
-  mkdir -p ${INSTALL}/usr/lib/pkgconfig
-  cat > ${INSTALL}/usr/lib/pkgconfig/librhash.pc <<EOF
-prefix=/usr
-libdir=\${prefix}/lib
-includedir=\${prefix}/include
-
-Name: librhash
-Description: RHash library
-Version: ${PKG_VERSION}
-Libs: -L\${libdir} -lrhash
-Cflags: -I\${includedir}
-EOF
 }

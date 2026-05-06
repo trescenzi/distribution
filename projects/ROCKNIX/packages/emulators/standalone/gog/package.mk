@@ -12,18 +12,17 @@ PKG_DEPENDS_TARGET="rhash tidy toolchain tinyxml2"
 
 
 makeinstall_target() {
-  cmake -B build \
-    -DCMAKE_INSTALL_PREFIX=/usr \
+  cmake -B ${PKG_BUILD} -S .. -GNinja \
+    -DCMAKE_INSTALL_PREFIX=${INSTALL}/usr \
     -DCMAKE_BUILD_TYPE=Release \
-    -DUSE_QT_GUI=OFF \  # Set to ON if you want Qt GUI
-    -GNinja
+    -DUSE_QT_GUI=OFF  # Set to ON if you want Qt GUI
 
   ninja -C ${PKG_BUILD} install
 
   # If the binary is not installed to /usr/bin by default, manually copy it
   if [ ! -f "${INSTALL}/usr/bin/lgogdownloader" ]; then
     mkdir -p ${INSTALL}/usr/bin
-    cp -f ${PKG_BUILD}/build/lgogdownloader ${INSTALL}/usr/bin/
+    cp -f ${PKG_BUILD}/lgogdownloader ${INSTALL}/usr/bin/
     chmod 0755 ${INSTALL}/usr/bin/lgogdownloader
   fi
 }
