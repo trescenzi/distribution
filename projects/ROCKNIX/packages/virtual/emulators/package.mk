@@ -744,6 +744,15 @@ makeinstall_target() {
       ;;
   esac
 
+	## GOG
+  case ${DEVICE} in
+    SM6115|SM8250|SM8550|SM8650|SM8750)
+      add_emu_core gog gog gog true
+      install_script "Scan Gog Games.sh"
+      add_es_system gog
+      ;;
+  esac
+
   ### Intellivision
   add_emu_core intellivision retroarch freeintv true
   add_es_system intellivision

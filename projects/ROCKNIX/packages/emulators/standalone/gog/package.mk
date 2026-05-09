@@ -25,4 +25,6 @@ makeinstall_target() {
     cp -f ${PKG_BUILD}/lgogdownloader ${INSTALL}/usr/bin/
     chmod 0755 ${INSTALL}/usr/bin/lgogdownloader
   fi
+
+  cp -rf ${PKG_DIR}/scripts/* ${INSTALL}/usr/bin
 }
