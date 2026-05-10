@@ -747,8 +747,9 @@ makeinstall_target() {
 	## GOG
   case ${DEVICE} in
     SM6115|SM8250|SM8550|SM8650|SM8750)
-      add_emu_core gog gog gog true
       install_script "Scan Gog Games.sh"
+			add_emu_core gog gog wine true
+			add_emu_core gog gog umu false
       add_es_system gog
       ;;
   esac

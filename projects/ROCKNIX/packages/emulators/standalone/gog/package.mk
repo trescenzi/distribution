@@ -26,5 +26,6 @@ makeinstall_target() {
     chmod 0755 ${INSTALL}/usr/bin/lgogdownloader
   fi
 
-  cp -rf ${PKG_DIR}/scripts/* ${INSTALL}/usr/bin
+  cp -rf ${PKG_DIR}/scripts/install_game.sh ${INSTALL}/usr/bin/install_gog_game
+	chmod +x ${INSTALL}/usr/bin/install_gog_game
 }

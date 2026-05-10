@@ -9,6 +9,6 @@ if [[ -n "$1" ]]; then
 fi
 
 echo "[GOG]: Installing $GAME"
-CMD="lgogdownloader --platform win --galaxy-platform windows --directory /roms/gog/games --xml-directory /roms/gog/xml --galaxy-install $GAME"
+CMD="lgogdownloader --platform win --save-game-details-json --galaxy-platform windows --directory /roms/gog/games --xml-directory /roms/gog/xml --galaxy-install $GAME"
 echo "[GOG]: running $CMD"
 eval $CMD
