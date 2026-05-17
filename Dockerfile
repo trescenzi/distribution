@@ -16,7 +16,7 @@ ENV LANG=en_US.UTF-8 \
 
 RUN adduser --disabled-password --gecos '' docker \
  && adduser docker sudo \
- && echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
+ && echo "docker ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 
 RUN apt-get update \
  && apt-get install -y \

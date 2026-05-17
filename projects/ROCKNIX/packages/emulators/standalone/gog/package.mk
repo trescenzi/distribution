@@ -28,4 +28,6 @@ makeinstall_target() {
 
   cp -rf ${PKG_DIR}/scripts/install_game.sh ${INSTALL}/usr/bin/install_gog_game
 	chmod +x ${INSTALL}/usr/bin/install_gog_game
+  cp -rf ${PKG_DIR}/scripts/run_or_install_gog_game.sh ${INSTALL}/usr/bin/run_or_install_gog_game
+	chmod +x ${INSTALL}/usr/bin/run_or_install_gog_game
 }
